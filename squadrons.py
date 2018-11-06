@@ -90,27 +90,24 @@ class Tie(Squadron):
     """Tie fighter squadron, implementing Swarm. For now, until I can figure out how to
     have the definition of the 'worst' die vary by the opponent, I will just re-roll the
     first result that did not result in a hit."""
-    @property
-    def roll(self, dice=None):
+
+    def roll(self, dice=None, wing=None):
         # Use the parent method to start.
         attack = super().roll
-        for i, result in enumerate(attack):
-            if result.hits is 0:
-                # re-roll this, then stop
-                new_color = result.color
-                del attack[i]
-                new_die = Die(new_color, faces[new_color])
-                attack.insert(i, new_die.roll)
-                break
+        if len(wing) > 1:
+            # The enemy is engaged by two fighters, so we can use swarm.
+            for i, result in enumerate(attack):
+                if result.hits is 0:
+                    # re-roll this, then stop
+                    new_color = result.color
+                    del attack[i]
+                    new_die = Die(new_color, faces[new_color])
+                    attack.insert(i, new_die.roll)
+                    break
         return attack
-
-
-class Wing:
-    """A group of one or two squadrons."""
-    def __init__(self):
-        pass
 
 
 if __name__ == "__main__":
     t1 = Tie(model="TIE", dice_colors=["blue", "blue", "blue", "blue"])
-    print(t1.roll)
+    t2 = Tie(model="TIE", dice_colors=["blue", "blue", "blue", "blue"])
+    imperial_wing = [t1, t2]
