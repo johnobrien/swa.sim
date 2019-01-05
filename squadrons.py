@@ -67,8 +67,9 @@ class Die:
 
 class Squadron:
     """The parent class for all squadrons."""
-    def __init__(self, model, dice_colors):
+    def __init__(self, model, hull, dice_colors):
         self.kind = model
+        self.hull = hull
         self.dice = []
         for die_color in dice_colors:
             self.dice.append(Die(die_color, faces[die_color]))
@@ -85,11 +86,16 @@ class Squadron:
             attack.append(result)
         return attack
 
+    def defend(self, attack):
+        # Given at attack from an enemy wing, the squadron defends itself, or takes damage.
+        pass
 
-class Tie(Squadron):
+class TieFighter(Squadron):
     """Tie fighter squadron, implementing Swarm. For now, until I can figure out how to
     have the definition of the 'worst' die vary by the opponent, I will just re-roll the
     first result that did not result in a hit."""
+    def __init__(self):
+        super(TieFighter, self).__init__(model="TIE Fighter Squadron", hull=3, dice_colors=["blue", "blue", "blue"])
 
     def roll(self, dice=None, wing=None):
         # Use the parent method to start.
@@ -106,8 +112,33 @@ class Tie(Squadron):
                     break
         return attack
 
+class Xwing(Squadron):
+    """X-wings have escort. I will need to figure how to model that."""
+    def __init__(self):
+        super(Xwing, self).__init__(model="X-wing Squadron   ", hull=5, dice_colors=["blue", "blue", "blue", "blue"])
+
+    def roll(self, dice=None, wing=None):
+        attack = super().roll
+        return attack
+
+
+class Wing:
+    """A wing is composed of one or more squadrons."""
+    def __init__(self, squadrons):
+        self.squadrons = squadrons
+
+    def attack(enemy_wing):
+        """Given an enemy wing, selects a squadron to attack in the enemy wing."""
+        targets = sorted(enemy_wing, key=lambda x: x.hull, reverse=True)
+
 
 if __name__ == "__main__":
-    t1 = Tie(model="TIE", dice_colors=["blue", "blue", "blue", "blue"])
-    t2 = Tie(model="TIE", dice_colors=["blue", "blue", "blue", "blue"])
+    t1 = TieFighter()
+    t2 = TieFighter()
     imperial_wing = [t1, t2]
+    print(t1.roll(wing=imperial_wing))
+    print(t2.roll(wing=imperial_wing))
+
+    x1 = Xwing()
+    rebel_wing = [x1]
+    print(x1.roll(wing=rebel_wing))
